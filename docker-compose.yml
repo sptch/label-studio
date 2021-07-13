@@ -36,7 +36,7 @@ services:
       - "8080"
     environment:
       - DJANGO_DB=default
-      - POSTGRE_NAME=postgres
+      - POSTGRE_NAME=label
       - POSTGRE_USER="${POSTGRES_USER}"
       - POSTGRE_PASSWORD="${POSTGRES_PASSWORD}"
       - POSTGRE_HOST=localhost:5432
@@ -45,7 +45,7 @@ services:
     volumes:
       - ./mydata:/label-studio/data:rw
       - static:/label-studio/label_studio:rw
-    command: [ "./deploy/wait-for-postgres.sh", "bash", "/label-studio/deploy/start_label_studio.sh" ]
+    command: [  "bash", "/label-studio/deploy/start_label_studio.sh" ]
 
 volumes:
   static: {} 
