@@ -1,54 +1,53 @@
-# this file is distributed as an example of serving Label Studio under proxy
-# with sub-path http://localhost/foo/ without any warranties.
-# If you need to adjust it to your deployment scenario, manually modify the ./deploy/nginx/subpath.example.simple.conf,
-# Label Studio env vars and postgres DB settings
 version: '3.3'
 
 services:
 
+  caddy:
+    image: caddy:latest
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      XDG_DATA_HOME: /mount/server/data
+      XDG_CONFIG_HOME: /mount/server/config
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/mount/server
+
   nginx:
     image: nginx:latest
     ports:
-      - 80:80
+      - "80"
     depends_on:
       - app
     volumes:
       - static:/label-studio/label_studio:rw
       - ./mydata:/label-studio/data:rw
-      - ../nginx/subpath.example.simple.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/nginx/${NGINX_FILE:-default.conf}:/etc/nginx/conf.d/default.conf:ro
     command: nginx -g "daemon off;"
 
   app:
     stdin_open: true
     tty: true
+    build: .
     image: heartexlabs/label-studio:latest
-    ports:
-      - 8080:8080
-    depends_on:
-      - db
+    expose:
+      - "8080"
     environment:
       - DJANGO_DB=default
-      - POSTGRE_NAME=postgres
-      - POSTGRE_USER=postgres
-      - POSTGRE_PASSWORD=
+      - POSTGRE_NAME=label
+      - POSTGRE_USER="${POSTGRES_USER}"
+      - POSTGRE_PASSWORD="${POSTGRES_PASSWORD}"
+      - POSTGRE_HOST=localhost:5432
       - POSTGRE_PORT=5432
-      - POSTGRE_HOST=db
-      - LABEL_STUDIO_HOST=http://localhost/foo
+      - LABEL_STUDIO_HOST=${LABEL_STUDIO_HOST:-}
     volumes:
       - ./mydata:/label-studio/data:rw
-    command: [ "./deploy/wait-for-postgres.sh", "db", "bash", "/label-studio/deploy/start_label_studio.sh" ]
-
-  db:
-    image: postgres:11.5
-    hostname: db
-    restart: always
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    volumes:
-      - ${POSTGRES_DATA_DIR:-./postgres-data}:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
-
+      - static:/label-studio/label_studio:rw
+    command: [  "bash", "/label-studio/deploy/start_label_studio.sh" ]
 
 volumes:
   static: {} 
+  caddy_data:
+
