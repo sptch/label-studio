@@ -35,7 +35,9 @@ services:
       - ./mydata:/label-studio/data:rw
       - static:/label-studio/label_studio:rw
     command: [  "bash", "/label-studio/deploy/start_label_studio.sh" ]
-  
+    networks:
+      - bbynet
+
 volumes:
   static: {} 
   caddy_data:
