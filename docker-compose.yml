@@ -39,7 +39,7 @@ services:
       - POSTGRE_NAME=label
       - POSTGRE_USER="${POSTGRES_USER}"
       - POSTGRE_PASSWORD="${POSTGRES_PASSWORD}"
-      - POSTGRE_HOST=localhost
+      - POSTGRE_HOST=https://bymodels.spatialtech.info
       - POSTGRE_PORT=5432
       - LABEL_STUDIO_HOST=${LABEL_STUDIO_HOST:-}
     volumes:
